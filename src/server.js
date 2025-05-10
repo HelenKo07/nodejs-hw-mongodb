@@ -21,7 +21,7 @@ export const setupServer = async () => {
   );
 
   app.get('/', (req, res) => {
-    res.send("It's work");
+    res.send("Welcome to the Contacts API!");
   });
 
   app.get('/contacts', async (req, res) => {
