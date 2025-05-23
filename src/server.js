@@ -11,10 +11,12 @@ const PORT = Number(getEnvVar('PORT', '3000'));
 export const setupServer = async () => {
   const app = express();
 
-  app.use(express.json({type: ['application/json', 'aplication/vnd.api+json'],
-    limit: '100kb',
-  }),
-);
+  app.use(
+    express.json({
+      type: ['application/json', 'aplication/vnd.api+json'],
+      limit: '100kb',
+    }),
+  );
   app.use(cors());
 
   app.use(
@@ -26,7 +28,7 @@ export const setupServer = async () => {
   );
 
   app.get('/', (req, res) => {
-    res.send("Welcome to the Contacts API!");
+    res.send('Welcome to the Contacts API!');
   });
 
   app.use('/contacts', contactsRouter);
