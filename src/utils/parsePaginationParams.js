@@ -1,9 +1,10 @@
 export const parseNumber = (number, defaultValue) => {
-  const isString = typeof number === 'string';
-  if (!isString) return defaultValue;
+  if (typeof number === 'undefined') {
+    return defaultValue;
+  }
 
   const parsedNumber = parseInt(number);
-  if (Number.isNaN(parsedNumber)) {
+  if (Number.isNaN(parsedNumber) === true) {
     return defaultValue;
   }
   return parsedNumber;
