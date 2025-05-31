@@ -7,7 +7,9 @@ export function validateBody(schema) {
       next();
     } catch (error) {
       const errors = error.details.map((detail) => detail.message);
-      next(creatHttpError.BadRequest(errors));
+            console.error('Joi validation error:', error);
+
+      next(creatHttpError.BadRequest(errors.join(', ')));
     }
   };
 }

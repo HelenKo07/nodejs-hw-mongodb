@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose';
+import mongoose, { model, Schema } from 'mongoose';
 
 const contactSchema = new Schema(
   {
@@ -23,6 +23,11 @@ const contactSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
   },
   {
     timestamps: true,
@@ -30,4 +35,4 @@ const contactSchema = new Schema(
   },
 );
 
-export const Contacts = model('contacts', contactSchema);
+export const Contacts = model('Contacts', contactSchema);
