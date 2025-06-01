@@ -1,8 +1,12 @@
 import crypto from 'node:crypto';
 import bcrypt from 'bcrypt';
 import createHttpError from 'http-errors';
+import jwt from 'jsonwebtoken';
+import { getEnvVar } from '../utils/getEnvVar.js';
+import { sendEmail } from '../utils/sendMail.js';
 import { User } from '../db/models/user.js';
 import { Session } from '../db/models/session.js';
+import { SMTP } from '../constants/index.js';
 
 export async function registerUser(payload) {
   const { name, email, password } = payload;
@@ -84,5 +88,34 @@ export async function refreshSession(sessionId, refreshToken) {
     refreshToken: crypto.randomBytes(30).toString("base64"),
     accessTokenValidUntil: new Date(Date.now() + 15 * 60 * 1000),
     refreshTokenValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+  });
+}
+
+
+export async function sendResetToken(email) {
+  const user = await User.findOne({email});
+
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  }
+  const resetToken = jwt.sign(
+    {
+      sub: user._id,
+      email,
+    },
+    getEnvVar('JWT_SECRET'),
+    {
+      expiresIn: '5m'
+    }
+  );
+
+  const appDomain = getEnvVar('APP_DOMAIN', 'http://localhost:3000/auth');
+  const resetLink = `${appDomain}/reset-password/${resetToken}`;
+
+  await sendEmail({
+    from: getEnvVar(SMTP.SMTP_FROM),
+    to: email,
+    subject: 'Reset your password',
+    html: `<p>Hello</p> <p>Click the link below to reset your password:</p> <a href="${resetLink}">here to reset your password!</a> <p>This link is valid for 5 minutes.</p> `,
   });
 }
