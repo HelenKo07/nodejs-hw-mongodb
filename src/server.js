@@ -36,8 +36,8 @@ export const setupServer = async () => {
     res.send('Welcome to the Contacts API!');
   });
 
-  app.use('/api/auth', authRouter);
-  app.use('/api/contacts', authenticate, contactsRouter);
+  app.use('/auth', authRouter);
+  app.use('/contacts', authenticate, contactsRouter);
 
   app.use(errorHandler);
 
