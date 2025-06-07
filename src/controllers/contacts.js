@@ -9,6 +9,9 @@ import { createContact } from '../services/contacts.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
+import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import { getEnvVar } from '../utils/getEnvVar.js';
 
 export const getContactsControllers = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
@@ -53,8 +56,23 @@ export const getContactByIdController = async (req, res, next) => {
 };
 
 export const createContactController = async (req, res) => {
-  const contact = await createContact({...req.body, userId: req.user.id});
+  const photo = req.file;
 
+  let photoUrl = null;
+
+  if (photo) {
+    if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+
+  const contact = await createContact({
+    ...req.body,
+    userId: req.user.id,
+    photo: photoUrl,
+  });
   res.status(201).json({
     status: 201,
     message: 'Successfully created a contact!',
@@ -77,23 +95,49 @@ export const upsertContactController = async (req, res, next) => {
 
   res.status(status).json({
     status,
-    message: 'Successfully upserted a student!',
+    message: 'Successfully upserted a contact!',
     data: result,
   });
 };
 
 export const patchContactController = async (req, res, next) => {
   const { contactId } = req.params;
-  const result = await updateContact(contactId, req.body);
+  const photo = req.file;
+
+  let photoUrl;
+
+  if (photo) {
+    if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+
+  // {
+  // fieldname: 'photo',
+  // originalname: 'download.jpeg',
+  // encoding: "7bit",
+  // mimetype: 'image/jpeg',
+  // destination: 'Users/alyona/Desktop/Projects/nodejs-hw-mongodb/students-app/temp',
+  // filename: '1709306266822_download.jpeg',
+  // path: 'Users/alyona/Desktop/Projects/nodejs-hw-mongodb/students-app/temp/1709306266822_download.jpeg',
+  // size: 7,
+  // }
+  const result = await updateContact(contactId, {
+    ...req.body,
+    photo: photoUrl,
+  });
 
   if (!result) {
     next(createHttpError(404, 'Contact not found'));
     return;
   }
+
   res.status(200).json({
     status: 200,
     message: 'Successfully patched a contact!',
-    data: result.contact,
+    data: result,
   });
 };
 
