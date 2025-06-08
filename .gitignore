@@ -1,10 +1,13 @@
 /node_modules
 
-/src/tmp/*
-!/src/tmp/.gitkeep
+/tmp/*
+!/tmp/.gitkeep
+/upload/photo/*
+!/upload/photo/.gitkeep
+
 
 .env
 
-.vscode
+.vscode/
 .DS_Store
-.idea
+.idea/

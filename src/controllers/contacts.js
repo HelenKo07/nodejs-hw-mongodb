@@ -114,22 +114,13 @@ export const patchContactController = async (req, res, next) => {
     }
   }
 
-  // {
-  // fieldname: 'photo',
-  // originalname: 'download.jpeg',
-  // encoding: "7bit",
-  // mimetype: 'image/jpeg',
-  // destination: 'Users/alyona/Desktop/Projects/nodejs-hw-mongodb/students-app/temp',
-  // filename: '1709306266822_download.jpeg',
-  // path: 'Users/alyona/Desktop/Projects/nodejs-hw-mongodb/students-app/temp/1709306266822_download.jpeg',
-  // size: 7,
-  // }
   const result = await updateContact(contactId, {
     ...req.body,
     photo: photoUrl,
   });
+  console.log(photoUrl);
 
-  if (!result) {
+  if (!result?.contact) {
     next(createHttpError(404, 'Contact not found'));
     return;
   }
