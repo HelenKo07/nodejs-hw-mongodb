@@ -8,6 +8,8 @@ import {
   patchContactController,
 } from '../controllers/contacts.js';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
+import { upload } from '../middlewares/multer.js';
+
 import { isValidId } from '../middlewares/isValidId.js';
 import { validateBody } from '../middlewares/validateBody.js';
 import {
@@ -16,29 +18,27 @@ import {
 } from '../validation/contactSchemas.js';
 
 const router = express.Router();
-const jsonParser = express.json();
 
 router.get('/', ctrlWrapper(getContactsControllers));
 router.get('/:contactId', isValidId, ctrlWrapper(getContactByIdController));
 router.delete('/:contactId', isValidId, ctrlWrapper(deleteContactController));
 router.post(
   '/',
-  jsonParser,
+  upload.single('photo'),
   validateBody(createContactSchema),
   ctrlWrapper(createContactController),
 );
 router.patch(
   '/:contactId',
   isValidId,
-  jsonParser,
+  upload.single('photo'),
   validateBody(updateContactSchema),
-
   ctrlWrapper(patchContactController),
 );
 router.put(
   '/:contactId',
   isValidId,
-  jsonParser,
+  upload.single('photo'),
   validateBody(createContactSchema),
   ctrlWrapper(upsertContactController),
 );

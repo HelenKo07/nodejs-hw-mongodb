@@ -1,4 +1,4 @@
-import creatHttpError from 'http-errors';
+import createHttpError from 'http-errors';
 
 export function validateBody(schema) {
   return async (req, res, next) => {
@@ -7,9 +7,9 @@ export function validateBody(schema) {
       next();
     } catch (error) {
       const errors = error.details.map((detail) => detail.message);
-            console.error('Joi validation error:', error);
+      console.error('Joi validation error:', error);
 
-      next(creatHttpError.BadRequest(errors.join(', ')));
+      next(createHttpError.BadRequest(errors.join(', ')));
     }
   };
 }

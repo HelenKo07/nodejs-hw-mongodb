@@ -1,7 +1,7 @@
 import express from 'express';
 import authRouter from './auth.js';
 import contactsRouter from './contacts.js';
-import {authenticate} from '../middlewares/auth.js';
+import { authenticate } from '../middlewares/auth.js';
 
 const router = express.Router();
 

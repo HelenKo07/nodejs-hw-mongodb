@@ -1,77 +1,104 @@
-import { loginUser, logoutUser, registerUser, refreshSession, sendResetToken } from "../services/auth.js";
+import {
+  loginUser,
+  logoutUser,
+  registerUser,
+  refreshSession,
+  sendResetToken,
+  resetPassword,
+} from '../services/auth.js';
+import { generateAuthUrl } from '../utils/googleOAuth2.js';
 
-export async function registerUserController (req, res) {
-    const user = await registerUser(req.body);
+export async function registerUserController(req, res) {
+  const user = await registerUser(req.body);
 
-    res.status(201).json({
-        status: 201,
-        message: 'Successfully registered a user!',
-        data: user,
-    });
-};
-
-export async function loginUserController (req, res) {
-    const session = await loginUser(req.body.email, req.body.password);
-
-    res.cookie('sessionId', session._id, {
-        httpOnly: true,
-        expire: session.refreshTokenValidUntil,
-    });
-
-    res.cookie('refreshToken', session.refreshToken, {
-        httpOnly: true,
-        expire: session.refreshTokenValidUntil,
-    });
-
-    res.status(200).json({
-        status: 200,
-        message: 'Successfully logged in an user!',
-        data: {accessToken: session.accessToken},
-    });
-};
-
-export async function logoutUserController (req, res) {
-    const {sessionId} = req.cookies;
-
-    logoutUser(sessionId);
-
-    res.clearCookie('sessionId');
-    res.clearCookie('refreshToken');
-
-    res.status(204).end();
+  res.status(201).json({
+    status: 201,
+    message: 'Successfully registered a user!',
+    data: user,
+  });
 }
 
+export async function loginUserController(req, res) {
+  const session = await loginUser(req.body.email, req.body.password);
+
+  res.cookie('sessionId', session._id, {
+    httpOnly: true,
+    expire: session.refreshTokenValidUntil,
+  });
+
+  res.cookie('refreshToken', session.refreshToken, {
+    httpOnly: true,
+    expire: session.refreshTokenValidUntil,
+  });
+
+  res.status(200).json({
+    status: 200,
+    message: 'Successfully logged in an user!',
+    data: { accessToken: session.accessToken },
+  });
+}
+
+export async function logoutUserController(req, res) {
+  const { sessionId } = req.cookies;
+
+  logoutUser(sessionId);
+
+  res.clearCookie('sessionId');
+  res.clearCookie('refreshToken');
+
+  res.status(204).end();
+}
 
 export async function refreshUserController(req, res) {
-    const {sessionId, refreshToken} = req.cookies;
+  const { sessionId, refreshToken } = req.cookies;
 
-    const session = await refreshSession(sessionId, refreshToken);
+  const session = await refreshSession(sessionId, refreshToken);
 
-    res.cookie('sessionId', session._id, {
-        httpOnly: true,
-        expire: session.refreshTokenValidUntil,
-    });
+  res.cookie('sessionId', session._id, {
+    httpOnly: true,
+    expire: session.refreshTokenValidUntil,
+  });
 
-    res.cookie('refreshToken', session.refreshToken, {
-        httpOnly: true,
-        expire: session.refreshTokenValidUntil,
-    });
+  res.cookie('refreshToken', session.refreshToken, {
+    httpOnly: true,
+    expire: session.refreshTokenValidUntil,
+  });
 
-    res.status(200).json({
-        status: 200,
-        message: 'Successfully refreshed a session!!',
-        data: {accessToken: session.accessToken},
-    });
+  res.status(200).json({
+    status: 200,
+    message: 'Successfully refreshed a session!!',
+    data: { accessToken: session.accessToken },
+  });
 
-    res.end();
+  res.end();
 }
 
 export async function sendResetEmailController(req, res) {
-    await sendResetToken(req.body.email);
+  await sendResetToken(req.body.email);
 
-    res.json({
-        message: 'Reset password email has been successfully sent.',
-        status: 200,
-        data: {},
-    });
+  res.json({
+    message: 'Reset password email has been successfully sent.',
+    status: 200,
+    data: {},
+  });
+}
+
+export async function resetPasswordController(req, res) {
+  await resetPassword(req.body);
+
+  res.json({
+    message: 'Password has been successfully reset.',
+    status: 200,
+    data: {},
+  });
+}
+
+export async function getGoogleOAuthUrlController(req, res) {
+  const url = generateAuthUrl();
+
+  res.json({
+    status: 200,
+    message: 'Successfully get Google OAuth url!',
+    data: { url },
+  });
 }

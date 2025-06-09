@@ -8,6 +8,7 @@ import { getEnvVar } from './utils/getEnvVar.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { authenticate } from './middlewares/auth.js';
+import { UPLOAD_DIR } from './constants/index.js';
 
 const PORT = Number(getEnvVar('PORT', '3000'));
 
@@ -38,6 +39,7 @@ export const setupServer = async () => {
 
   app.use('/auth', authRouter);
   app.use('/contacts', authenticate, contactsRouter);
+  app.use('/upload', express.static(UPLOAD_DIR));
 
   app.use(errorHandler);
 
