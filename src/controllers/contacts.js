@@ -59,7 +59,7 @@ export const createContactController = async (req, res, next) => {
     try {
       if (photo) {
         const localPath = await saveFileToUploadDir(photo);
-        await saveFileToCloudinary(localPath);
+        photoUrl = await saveFileToCloudinary(localPath);
       }
     } catch {
       return next(createHttpError(500, 'Failed to upload photo'));
@@ -115,8 +115,8 @@ export const patchContactController = async (req, res, next) => {
 
     if (photo) {
       try {
-        const photoUrl = await saveFileToUploadDir(photo);
-        await saveFileToCloudinary(photoUrl);
+        const localPath = await saveFileToUploadDir(photo);
+        photoUrl = await saveFileToCloudinary(localPath);
       } catch {
         return next(createHttpError(500, 'Failed to upload photo'));
       }

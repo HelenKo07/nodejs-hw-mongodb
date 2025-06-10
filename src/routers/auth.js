@@ -14,13 +14,10 @@ import {
   refreshUserController,
   sendResetEmailController,
   resetPasswordController,
-  // getGoogleOAuthUrlController,
 } from '../controllers/auth.js';
 
 const router = express.Router();
 const jsonParser = express.json();
-
-// router.get('/get-oauth-url', ctrlWrapper(getGoogleOAuthUrlController));
 
 router.post(
   '/register',
