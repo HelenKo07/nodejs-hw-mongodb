@@ -1,7 +1,7 @@
 import Handlebars from 'handlebars';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import crypto from 'node:crypto';
+import crypto, { randomBytes } from 'node:crypto';
 import bcrypt from 'bcrypt';
 import createHttpError from 'http-errors';
 import jwt from 'jsonwebtoken';
@@ -10,6 +10,10 @@ import { sendEmail } from '../utils/sendMail.js';
 import { User } from '../db/models/user.js';
 import { Session } from '../db/models/session.js';
 import { SMTP, TEMPLATES_DIR } from '../constants/index.js';
+import {
+  getFullNameFromGoogleTokenPayload,
+  validateCode,
+} from '../utils/googleOAuthClient.js';
 
 export async function registerUser(payload) {
   const { name, email, password } = payload;
@@ -68,6 +72,18 @@ export async function logoutUser(sessionId) {
   await Session.deleteOne({ _id: sessionId });
 }
 
+const createSession = () => {
+  const accessToken = randomBytes(30).toString('base64');
+  const refreshToken = randomBytes(30).toString('base64');
+
+  return {
+    accessToken,
+    refreshToken,
+    accessTokenValidUntil: new Date(Date.now() + 15 * 60 * 1000),
+    refreshTokenValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+  };
+};
+
 export async function refreshSession(sessionId, refreshToken) {
   const session = await Session.findOne({ _id: sessionId });
 
@@ -83,14 +99,13 @@ export async function refreshSession(sessionId, refreshToken) {
     throw new createHttpError.Unauthorized('Refresh token is expired');
   }
 
+  const newSession = createSession();
+
   await Session.deleteOne({ _id: session._id });
 
   return Session.create({
     userId: session.userId,
-    accessToken: crypto.randomBytes(30).toString('base64'),
-    refreshToken: crypto.randomBytes(30).toString('base64'),
-    accessTokenValidUntil: new Date(Date.now() + 15 * 60 * 1000),
-    refreshTokenValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    ...newSession,
   });
 }
 
@@ -167,4 +182,27 @@ export async function resetPassword({ password, token }) {
     }
     throw error;
   }
+}
+
+export async function loginOrSignupWithGoogle(code) {
+  const loginTicket = await validateCode(code);
+  const payload = loginTicket.getPayload();
+  if (!payload) throw createHttpError(401);
+
+  let user = await User.findOne({ email: payload.email });
+  if (!user) {
+    const password = await bcrypt.hash(randomBytes(10), 10);
+    user = await User.create({
+      name: getFullNameFromGoogleTokenPayload(payload),
+      email: payload.email,
+      password,
+      role: 'parent',
+    });
+  }
+  const newSession = createSession();
+
+  return await Session.create({
+    userId: user._id,
+    ...newSession,
+  });
 }
