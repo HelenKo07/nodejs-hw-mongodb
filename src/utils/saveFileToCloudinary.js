@@ -12,22 +12,22 @@ cloudinary.v2.config({
   api_secret: getEnvVar(CLOUDINARY.API_SECRET),
 });
 
-export const saveFileToCloudinary = async (file) => {
+export const saveFileToCloudinary = async (filePath) => {
   try {
-    if (!file) {
+    if (!filePath) {
       throw createHttpError(400, 'No file provided');
     }
 
-    const response = await cloudinary.v2.uploader.upload(file.path, {
+    const response = await cloudinary.v2.uploader.upload(filePath, {
       folder: 'contacts',
       resource_type: 'auto',
     });
 
-    await fs.unlink(file.path).catch(console.error);
+    await fs.unlink(filePath).catch(console.error);
 
     return response.secure_url;
   } catch (error) {
-    await fs.unlink(file.path).catch(console.error);
+    await fs.unlink(filePath).catch(console.error);
 
     if (error.http_code) {
       throw createHttpError(error.http_code, error.message);

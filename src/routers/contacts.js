@@ -16,6 +16,7 @@ import {
   createContactSchema,
   updateContactSchema,
 } from '../validation/contactSchemas.js';
+import { authenticate } from '../middlewares/auth.js';
 
 const router = express.Router();
 
@@ -24,6 +25,7 @@ router.get('/:contactId', isValidId, ctrlWrapper(getContactByIdController));
 router.delete('/:contactId', isValidId, ctrlWrapper(deleteContactController));
 router.post(
   '/',
+  authenticate,
   upload.single('photo'),
   validateBody(createContactSchema),
   ctrlWrapper(createContactController),
@@ -31,6 +33,7 @@ router.post(
 router.patch(
   '/:contactId',
   isValidId,
+  authenticate,
   upload.single('photo'),
   validateBody(updateContactSchema),
   ctrlWrapper(patchContactController),
