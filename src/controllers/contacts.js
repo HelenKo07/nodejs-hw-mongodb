@@ -1,4 +1,5 @@
 import createHttpError from 'http-errors';
+import mongoose from 'mongoose';
 import {
   deleteContact,
   getAllContacts,
@@ -12,8 +13,6 @@ import { parseFilterParams } from '../utils/parseFilterParams.js';
 
 import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
-import { getEnvVar } from '../utils/getEnvVar.js';
-
 
 export const getContactsControllers = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
@@ -53,22 +52,17 @@ export const getContactByIdController = async (req, res, next) => {
   });
 };
 
-
 export const createContactController = async (req, res, next) => {
   try {
     const photo = req.file;
     let photoUrl = null;
-
-    if (photo) {
-      try {
-        if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
-          photoUrl = await saveFileToCloudinary(photo);
-        } else {
-          photoUrl = await saveFileToUploadDir(photo);
-        }
-      } catch {
-        return next(createHttpError(500, 'Failed to upload photo'));
+    try {
+      if (photo) {
+        const localPath = await saveFileToUploadDir(photo);
+        await saveFileToCloudinary(localPath);
       }
+    } catch {
+      return next(createHttpError(500, 'Failed to upload photo'));
     }
 
     const contact = await createContact({
@@ -110,12 +104,10 @@ export const upsertContactController = async (req, res, next) => {
     message: 'Successfully upserted a contact!',
 
     data: result,
-
   });
 };
 
 export const patchContactController = async (req, res, next) => {
-
   try {
     const { contactId } = req.params;
     const photo = req.file;
@@ -123,11 +115,8 @@ export const patchContactController = async (req, res, next) => {
 
     if (photo) {
       try {
-        if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
-          photoUrl = await saveFileToCloudinary(photo);
-        } else {
-          photoUrl = await saveFileToUploadDir(photo);
-        }
+        const photoUrl = await saveFileToUploadDir(photo);
+        await saveFileToCloudinary(photoUrl);
       } catch {
         return next(createHttpError(500, 'Failed to upload photo'));
       }
@@ -150,7 +139,6 @@ export const patchContactController = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-
 };
 
 export const deleteContactController = async (req, res, next) => {
