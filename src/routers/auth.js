@@ -22,8 +22,6 @@ import {
 const router = express.Router();
 const jsonParser = express.json();
 
-router.get('/get-oauth-url', ctrlWrapper(getGoogleOAuthUrlController));
-
 router.post(
   '/register',
   jsonParser,
@@ -56,8 +54,11 @@ router.post(
   ctrlWrapper(resetPasswordController),
 );
 
+router.get('/get-oauth-url', ctrlWrapper(getGoogleOAuthUrlController));
+
 router.post(
   '/confirm-oauth',
+  jsonParser,
   validateBody(loginWithGoogleOAuthSchema),
   ctrlWrapper(loginWithGoogleController),
 );

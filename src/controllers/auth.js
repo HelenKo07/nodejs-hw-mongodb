@@ -98,13 +98,13 @@ export async function resetPasswordController(req, res) {
   });
 }
 
-export async function getGoogleOAuthUrlController(req, res) {
+export function getGoogleOAuthUrlController(req, res) {
   const url = generateAuthUrl();
 
   res.json({
     status: 200,
     message: 'Successfully get Google OAuth url!',
-    data: { url },
+    data: { oauth_url: url },
   });
 }
 

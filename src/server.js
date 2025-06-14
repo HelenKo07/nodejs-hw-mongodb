@@ -9,7 +9,7 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { authenticate } from './middlewares/auth.js';
 import { UPLOAD_DIR } from './constants/index.js';
-
+import { swaggerDocs } from './middlewares/swaggerDocs.js';
 const PORT = Number(getEnvVar('PORT', '3000'));
 
 export const setupServer = async () => {
@@ -40,6 +40,7 @@ export const setupServer = async () => {
   app.use('/auth', authRouter);
   app.use('/contacts', authenticate, contactsRouter);
   app.use('/upload', express.static(UPLOAD_DIR));
+  app.use('/api-docs', swaggerDocs());
 
   app.use(errorHandler);
 
