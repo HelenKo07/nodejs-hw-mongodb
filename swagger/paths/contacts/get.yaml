@@ -34,28 +34,6 @@ parameters:
       type: boolean
       example: 'false'
   - in: query
-    name: phoneNumber
-    schema:
-      type: string
-      example: '+380501234567'
-  - in: query
-    name: name
-    schema:
-      type: string
-      example: 'John Doe'
-  - in: query
-    name: createdAt
-    schema:
-      type: string
-      format: date-time
-      example: '2023-10-01T12:00:00Z'
-  - in: query
-    name: updatedAt
-    schema:
-      type: string
-      format: date-time
-      example: '2023-10-01T12:00:00Z'
-  - in: query
     name: contactType
     schema:
       type: string
@@ -112,6 +90,8 @@ responses:
                 hasPreviousPage:
                   type: boolean
                   example: true
+  '401':
+    $ref: ../../components/responses/401.yaml
   '404':
     $ref: '../../components/responses/404.yaml'
   '500':

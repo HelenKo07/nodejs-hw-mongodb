@@ -89,40 +89,6 @@
           },
           {
             "in": "query",
-            "name": "phoneNumber",
-            "schema": {
-              "type": "string",
-              "example": "+380501234567"
-            }
-          },
-          {
-            "in": "query",
-            "name": "name",
-            "schema": {
-              "type": "string",
-              "example": "John Doe"
-            }
-          },
-          {
-            "in": "query",
-            "name": "createdAt",
-            "schema": {
-              "type": "string",
-              "format": "date-time",
-              "example": "2023-10-01T12:00:00Z"
-            }
-          },
-          {
-            "in": "query",
-            "name": "updatedAt",
-            "schema": {
-              "type": "string",
-              "format": "date-time",
-              "example": "2023-10-01T12:00:00Z"
-            }
-          },
-          {
-            "in": "query",
             "name": "contactType",
             "schema": {
               "type": "string",
@@ -205,6 +171,9 @@
               }
             }
           },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
           "404": {
             "$ref": "#/components/responses/404"
           },
@@ -233,8 +202,7 @@
                 "required": [
                   "name",
                   "phoneNumber",
-                  "contactType",
-                  "photo"
+                  "contactType"
                 ],
                 "properties": {
                   "name": {
@@ -311,6 +279,9 @@
           "400": {
             "$ref": "#/components/responses/400"
           },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
           "404": {
             "$ref": "#/components/responses/404"
           }
@@ -371,6 +342,9 @@
               }
             }
           },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
           "404": {
             "$ref": "#/components/responses/404"
           }
@@ -401,9 +375,54 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/contact"
+                "type": "object",
+                "required": [
+                  "name",
+                  "phoneNumber",
+                  "email",
+                  "contactType",
+                  "photo"
+                ],
+                "properties": {
+                  "name": {
+                    "description": "Contact's name",
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "phoneNumber": {
+                    "description": "Contact's phone number",
+                    "type": "string",
+                    "example": "+380501234567"
+                  },
+                  "contactType": {
+                    "description": "Contact's contact type",
+                    "type": "string",
+                    "enum": [
+                      "work",
+                      "home",
+                      "personal"
+                    ],
+                    "example": "personal"
+                  },
+                  "email": {
+                    "description": "Contact's email",
+                    "type": "string",
+                    "example": "JohnDoe@gmail.com"
+                  },
+                  "isFavourite": {
+                    "description": "Whether contact is marked as favourite",
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "photo": {
+                    "description": "Contact's photo file",
+                    "type": "string",
+                    "format": "binary",
+                    "example": "https://res.cloudinary.com/uqwgdu/image/upload/image.png"
+                  }
+                }
               }
             }
           }
@@ -438,6 +457,9 @@
               }
             }
           },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
           "404": {
             "$ref": "#/components/responses/404"
           },
@@ -471,6 +493,9 @@
         "responses": {
           "204": {
             "description": "Contact successfully deleted. No content returned."
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
           },
           "404": {
             "$ref": "#/components/responses/404"
@@ -589,6 +614,43 @@
                     "message": {
                       "type": "string",
                       "example": "Invalid contact id format"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Unauthorized error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "status",
+                "message",
+                "data"
+              ],
+              "properties": {
+                "status": {
+                  "type": "integer",
+                  "example": 401
+                },
+                "message": {
+                  "type": "string",
+                  "example": "UnauthorizedError"
+                },
+                "data": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Access token not expired"
                     }
                   }
                 }
